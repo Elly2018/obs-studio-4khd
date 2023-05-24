@@ -2357,7 +2357,7 @@ static int run_program(fstream &logFile, int argc, char *argv[])
 			goto run;
 		}
 
-		if (!multi) {
+		if (false) {
 			QMessageBox::StandardButtons buttons(
 				QMessageBox::Yes | QMessageBox::Cancel);
 			QMessageBox mb(QMessageBox::Question,
@@ -2437,7 +2437,7 @@ static int run_program(fstream &logFile, int argc, char *argv[])
 #endif
 
 #ifdef _WIN32
-		if (IsRunningOnWine()) {
+		if (false) {
 			QMessageBox mb(QMessageBox::Question,
 				       QTStr("Wine.Title"), QTStr("Wine.Text"));
 			mb.setTextFormat(Qt::RichText);

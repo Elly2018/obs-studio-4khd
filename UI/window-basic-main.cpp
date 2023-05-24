@@ -8986,11 +8986,20 @@ void OBSBasic::on_resetDocks_triggered(bool force)
 
 	ui->scenesDock->setVisible(true);
 	ui->sourcesDock->setVisible(true);
-	ui->mixerDock->setVisible(true);
-	ui->transitionsDock->setVisible(true);
+	ui->mixerDock->setVisible(false);
+	ui->mixerDock->setDisabled(true);
+	ui->transitionsDock->setVisible(false);
+	ui->transitionsDock->setDisabled(true);
 	ui->controlsDock->setVisible(true);
 	statsDock->setVisible(false);
 	statsDock->setFloating(true);
+
+	ui->scenesDock->hide();
+	ui->sourcesDock->hide();
+	ui->mixerDock->hide();
+	ui->transitionsDock->hide();
+	ui->menubar->hide();
+	ui->statusbar->hide();
 
 	resizeDocks(docks, {cy, cy, cy, cy, cy}, Qt::Vertical);
 	resizeDocks(docks, sizes, Qt::Horizontal);
