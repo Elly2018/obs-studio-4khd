@@ -267,9 +267,7 @@ private:
 
 	os_cpu_usage_info_t *cpuUsageInfo = nullptr;
 
-	int selector = 0;
 	OBSService service;
-	OBSService service2;
 	std::unique_ptr<BasicOutputHandler> outputHandler;
 	bool streamingStopping = false;
 	bool recordingStopping = false;
@@ -654,11 +652,7 @@ public slots:
 	void SetupBroadcast();
 
 	void StartStreaming();
-	void StartStreaming4K();
-	void StartStreamingHD();
 	void StopStreaming();
-	void StopStreaming4K();
-	void StopStreamingHD();
 	void ForceStopStreaming();
 
 	void StreamDelayStarting(int sec);

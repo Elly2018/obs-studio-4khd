@@ -6,16 +6,11 @@ class OBSBasic;
 
 struct BasicOutputHandler {
 	OBSOutputAutoRelease fileOutput;
-	OBSOutputAutoRelease fileOutput2;
 	OBSOutputAutoRelease streamOutput;
-	OBSOutputAutoRelease streamOutput2;
 	OBSOutputAutoRelease replayBuffer;
 	OBSOutputAutoRelease virtualCam;
-	int selector = 0;
 	bool streamingActive = false;
-	bool streamingActive2 = false;
 	bool recordingActive = false;
-	bool recordingActive2 = false;
 	bool delayActive = false;
 	bool replayBufferActive = false;
 	bool virtualCamActive = false;

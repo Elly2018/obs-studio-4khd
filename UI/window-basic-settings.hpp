@@ -272,7 +272,6 @@ private slots:
 	void UpdateMoreInfoLink();
 	void DisplayEnforceWarning(bool checked);
 	void on_show_clicked();
-	void on_show2_clicked();
 	void on_authPwShow_clicked();
 	void on_connectAccount_clicked();
 	void on_disconnectAccount_clicked();

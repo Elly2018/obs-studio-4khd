@@ -892,7 +892,7 @@ AutoConfig::AutoConfig(QWidget *parent) : QWizard(parent)
 
 	OBSDataAutoRelease twitchSettings = obs_data_create();
 
-	obs_data_set_string(twitchSettings, "service", "Custom...");
+	obs_data_set_string(twitchSettings, "service", "Twitch");
 
 	obs_properties_t *props = obs_get_service_properties("rtmp_common");
 	obs_properties_apply_settings(props, twitchSettings);
