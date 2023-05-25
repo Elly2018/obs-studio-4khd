@@ -3311,8 +3311,8 @@ int main(int argc, char *argv[])
 				;
 
 #ifdef _WIN32
-			//MessageBoxA(NULL, help.c_str(), "Help",
-				    //MB_OK | MB_ICONASTERISK);
+			MessageBoxA(NULL, help.c_str(), "Help",
+				    MB_OK | MB_ICONASTERISK);
 #else
 			std::cout << help
 				  << "--version, -V: Get current version.\n";

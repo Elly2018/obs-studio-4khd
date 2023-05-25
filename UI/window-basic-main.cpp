@@ -2096,7 +2096,12 @@ void OBSBasic::OBSInit()
 #endif
 
 	UpdatePreviewProgramIndicators();
+	ui->modeSwitch->hide();
+	ui->controlsDock->hide();
+	ui->control4KDock->setWindowTitle("4K Control");
+	ui->controlHDDock->setWindowTitle("HD Control");
 	//OnFirstLoad();
+
 
 	activateWindow();
 
@@ -8986,13 +8991,13 @@ void OBSBasic::on_resetDocks_triggered(bool force)
 
 	QList<int> sizes{cx22_5, cx22_5, mixerSize, cx5, cx21};
 
-	ui->scenesDock->setVisible(true);
-	ui->sourcesDock->setVisible(true);
+	ui->scenesDock->setVisible(false);
+	ui->sourcesDock->setVisible(false);
 	ui->mixerDock->setVisible(false);
 	ui->mixerDock->setDisabled(true);
 	ui->transitionsDock->setVisible(false);
 	ui->transitionsDock->setDisabled(true);
-	ui->controlsDock->setVisible(true);
+	ui->controlsDock->setVisible(false);
 	statsDock->setVisible(false);
 	statsDock->setFloating(true);
 
@@ -9000,6 +9005,7 @@ void OBSBasic::on_resetDocks_triggered(bool force)
 	ui->sourcesDock->hide();
 	ui->mixerDock->hide();
 	ui->transitionsDock->hide();
+	ui->controlsDock->hide();
 	ui->menubar->hide();
 	ui->statusbar->hide();
 	ui->modeSwitch->hide();
