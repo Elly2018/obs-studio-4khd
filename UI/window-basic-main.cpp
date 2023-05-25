@@ -1871,8 +1871,10 @@ void OBSBasic::OBSInit()
 		App()->GlobalConfig(), "BasicWindow", "ShowContextToolbars");
 	ui->toggleContextBar->setChecked(contextVisible);
 	ui->contextContainer->setVisible(contextVisible);
-	if (contextVisible)
-		UpdateContextBar(true);
+	ui->statusbar->setVisible(false);
+	ui->menubar->setVisible(false);
+	//if (contextVisible)
+		//UpdateContextBar(true);
 	UpdateEditMenu();
 
 	{
@@ -1884,8 +1886,8 @@ void OBSBasic::OBSInit()
 
 	loaded = true;
 
-	previewEnabled = config_get_bool(App()->GlobalConfig(), "BasicWindow",
-					 "PreviewEnabled");
+	//previewEnabled = config_get_bool(App()->GlobalConfig(), "BasicWindow",
+					 //"PreviewEnabled");
 
 	if (!previewEnabled && !IsPreviewProgramMode())
 		QMetaObject::invokeMethod(this, "EnablePreviewDisplay",
@@ -2022,9 +2024,9 @@ void OBSBasic::OBSInit()
 		config_save_safe(App()->GlobalConfig(), "tmp", nullptr);
 	}
 
-	if (!first_run && !has_last_version && !Active())
-		QMetaObject::invokeMethod(this, "on_autoConfigure_triggered",
-					  Qt::QueuedConnection);
+	//if (!first_run && !has_last_version && !Active())
+		//QMetaObject::invokeMethod(this, "on_autoConfigure_triggered",
+					  //Qt::QueuedConnection);
 
 #if defined(_WIN32) && (OBS_RELEASE_CANDIDATE > 0 || OBS_BETA > 0)
 	/* Automatically set branch to "beta" the first time a pre-release build is run. */
@@ -2037,7 +2039,7 @@ void OBSBasic::OBSInit()
 		config_save_safe(App()->GlobalConfig(), "tmp", nullptr);
 	}
 #endif
-	TimedCheckForUpdates();
+	//TimedCheckForUpdates();
 
 	ToggleMixerLayout(config_get_bool(App()->GlobalConfig(), "BasicWindow",
 					  "VerticalVolControl"));
@@ -2085,16 +2087,16 @@ void OBSBasic::OBSInit()
 #endif
 
 #if defined(_WIN32) || defined(__APPLE__)
-	if (App()->IsUpdaterDisabled()) {
-		ui->actionCheckForUpdates->setEnabled(false);
+	//if (App()->IsUpdaterDisabled()) {
+		//ui->actionCheckForUpdates->setEnabled(false);
 #if defined(_WIN32)
-		ui->actionRepair->setEnabled(false);
+		//ui->actionRepair->setEnabled(false);
 #endif
-	}
+	//}
 #endif
 
 	UpdatePreviewProgramIndicators();
-	OnFirstLoad();
+	//OnFirstLoad();
 
 	activateWindow();
 

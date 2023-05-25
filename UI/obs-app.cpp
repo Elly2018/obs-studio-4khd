@@ -80,23 +80,23 @@ static string currentLogFile;
 static string lastLogFile;
 static string lastCrashLogFile;
 
-bool portable_mode = false;
+bool portable_mode = true;
 bool steam = false;
-static bool multi = false;
-static bool log_verbose = false;
+static bool multi = true;
+static bool log_verbose = true;
 static bool unfiltered_log = false;
 bool opt_start_streaming = false;
 bool opt_start_recording = false;
-bool opt_studio_mode = false;
+bool opt_studio_mode = true;
 bool opt_start_replaybuffer = false;
 bool opt_start_virtualcam = false;
 bool opt_minimize_tray = false;
 bool opt_allow_opengl = false;
-bool opt_always_on_top = false;
+bool opt_always_on_top = true;
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 bool opt_disable_high_dpi_scaling = false;
 #endif
-bool opt_disable_updater = false;
+bool opt_disable_updater = true;
 bool opt_disable_missing_files_check = false;
 string opt_starting_collection;
 string opt_starting_profile;
