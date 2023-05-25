@@ -1254,11 +1254,18 @@ bool OBSBasic::LoadService()
 	OBSDataAutoRelease settings = obs_data_get_obj(data, "settings");
 	OBSDataAutoRelease hotkey_data = obs_data_get_obj(data, "hotkeys");
 
-	service = obs_service_create(type, "default_service", settings,
-				     hotkey_data);
-	obs_service_release(service);
-
-	return !!service;
+	if (selector == 0) {
+		service = obs_service_create(type, "default_service", settings,
+					     hotkey_data);
+		obs_service_release(service);
+		return !!service;
+	} else {
+		service2 = obs_service_create(type, "default_service", settings,
+					     hotkey_data);
+		obs_service_release(service2);
+		return !!service2;
+	}
+	return 0;
 }
 
 bool OBSBasic::InitService()
@@ -1268,13 +1275,24 @@ bool OBSBasic::InitService()
 	if (LoadService())
 		return true;
 
-	service = obs_service_create("rtmp_common", "default_service", nullptr,
-				     nullptr);
-	if (!service)
-		return false;
-	obs_service_release(service);
+	if (selector == 0) {
+		service = obs_service_create("rtmp_common", "default_service",
+					     nullptr, nullptr);
+		if (!service)
+			return false;
+		obs_service_release(service);
 
-	return true;
+		return true;
+	} else {
+		service2 = obs_service_create("rtmp_common", "default_service",
+					     nullptr, nullptr);
+		if (!service2)
+			return false;
+		obs_service_release(service2);
+
+		return true;
+	}
+	return false;
 }
 
 static const double scaled_vals[] = {1.0,         1.25, (1.0 / 0.75), 1.5,
@@ -1828,8 +1846,13 @@ void OBSBasic::OBSInit()
 	ResetOutputs();
 	CreateHotkeys();
 
+	selector = 0;
 	if (!InitService())
 		throw "Failed to initialize service";
+	selector = 1;
+	if (!InitService())
+		throw "Failed to initialize service 2";
+	selector = 0;
 
 	InitPrimitives();
 
@@ -2417,7 +2440,7 @@ void OBSBasic::CreateHotkeys()
 		}                                                          \
 		return false;                                              \
 	}
-
+	
 	streamingHotkeys = obs_hotkey_pair_register_frontend(
 		"OBSBasic.StartStreaming", Str("Basic.Main.StartStreaming"),
 		"OBSBasic.StopStreaming", Str("Basic.Main.StopStreaming"),
@@ -2427,6 +2450,32 @@ void OBSBasic::CreateHotkeys()
 		MAKE_CALLBACK(basic.outputHandler->StreamingActive() &&
 				      basic.ui->streamButton->isEnabled(),
 			      basic.StopStreaming, "Stopping stream"),
+		this, this);
+	LoadHotkeyPair(streamingHotkeys, "OBSBasic.StartStreaming",
+		       "OBSBasic.StopStreaming");
+
+	streamingHotkeys = obs_hotkey_pair_register_frontend(
+		"OBSBasic.StartStreaming", Str("Basic.Main.StartStreaming"),
+		"OBSBasic.StopStreaming", Str("Basic.Main.StopStreaming"),
+		MAKE_CALLBACK(!basic.outputHandler->StreamingActive() &&
+				      basic.ui->streamButton4K->isEnabled(),
+			      basic.StartStreaming4K, "Starting stream"),
+		MAKE_CALLBACK(basic.outputHandler->StreamingActive() &&
+				      basic.ui->streamButton4K->isEnabled(),
+			      basic.StopStreaming4K, "Stopping stream"),
+		this, this);
+	LoadHotkeyPair(streamingHotkeys, "OBSBasic.StartStreaming",
+		       "OBSBasic.StopStreaming");
+
+	streamingHotkeys = obs_hotkey_pair_register_frontend(
+		"OBSBasic.StartStreaming", Str("Basic.Main.StartStreaming"),
+		"OBSBasic.StopStreaming", Str("Basic.Main.StopStreaming"),
+		MAKE_CALLBACK(!basic.outputHandler->StreamingActive() &&
+				      basic.ui->streamButtonHD->isEnabled(),
+			      basic.StartStreamingHD, "Starting stream"),
+		MAKE_CALLBACK(basic.outputHandler->StreamingActive() &&
+				      basic.ui->streamButtonHD->isEnabled(),
+			      basic.StopStreamingHD, "Stopping stream"),
 		this, this);
 	LoadHotkeyPair(streamingHotkeys, "OBSBasic.StartStreaming",
 		       "OBSBasic.StopStreaming");
@@ -6631,6 +6680,150 @@ void OBSBasic::StartStreaming()
 		OBSBasic::ShowYouTubeAutoStartWarning();
 #endif
 }
+void OBSBasic::StartStreaming4K()
+{
+	if (outputHandler->StreamingActive())
+		return;
+	if (disableOutputsRef)
+		return;
+
+	selector = 0;
+	if (auth && auth->broadcastFlow()) {
+		if (!broadcastActive && !broadcastReady) {
+			ui->streamButton4K->setChecked(false);
+
+			QMessageBox no_broadcast(this);
+			no_broadcast.setText(QTStr("Output.NoBroadcast.Text"));
+			QPushButton *SetupBroadcast = no_broadcast.addButton(
+				QTStr("Basic.Main.SetupBroadcast"),
+				QMessageBox::YesRole);
+			no_broadcast.setDefaultButton(SetupBroadcast);
+			no_broadcast.addButton(QTStr("Close"),
+					       QMessageBox::NoRole);
+			no_broadcast.setIcon(QMessageBox::Information);
+			no_broadcast.setWindowTitle(
+				QTStr("Output.NoBroadcast.Title"));
+			no_broadcast.exec();
+
+			if (no_broadcast.clickedButton() == SetupBroadcast)
+				QMetaObject::invokeMethod(this,
+							  "SetupBroadcast");
+			return;
+		}
+	}
+
+	if (!outputHandler->SetupStreaming(service)) {
+		DisplayStreamStartError();
+		return;
+	}
+
+	if (api)
+		api->on_event(OBS_FRONTEND_EVENT_STREAMING_STARTING);
+
+	SaveProject();
+
+	ui->streamButton4K->setEnabled(false);
+	ui->streamButton4K->setChecked(false);
+	ui->streamButton4K->setText(QTStr("Basic.Main.Connecting"));
+	ui->broadcastButton->setChecked(false);
+
+	if (sysTrayStream) {
+		sysTrayStream->setEnabled(false);
+		sysTrayStream->setText(ui->streamButton4K->text());
+	}
+
+	if (!outputHandler->StartStreaming(service)) {
+		DisplayStreamStartError();
+		return;
+	}
+
+
+	bool recordWhenStreaming = config_get_bool(
+		GetGlobalConfig(), "BasicWindow", "RecordWhenStreaming");
+	if (recordWhenStreaming)
+		StartRecording();
+
+	bool replayBufferWhileStreaming = config_get_bool(
+		GetGlobalConfig(), "BasicWindow", "ReplayBufferWhileStreaming");
+	if (replayBufferWhileStreaming)
+		StartReplayBuffer();
+
+#if YOUTUBE_ENABLED
+	if (!autoStartBroadcast)
+		OBSBasic::ShowYouTubeAutoStartWarning();
+#endif
+}
+void OBSBasic::StartStreamingHD()
+{
+	if (outputHandler->StreamingActive())
+		return;
+	if (disableOutputsRef)
+		return;
+
+	selector = 1;
+	if (auth && auth->broadcastFlow()) {
+		if (!broadcastActive && !broadcastReady) {
+			ui->streamButtonHD->setChecked(false);
+
+			QMessageBox no_broadcast(this);
+			no_broadcast.setText(QTStr("Output.NoBroadcast.Text"));
+			QPushButton *SetupBroadcast = no_broadcast.addButton(
+				QTStr("Basic.Main.SetupBroadcast"),
+				QMessageBox::YesRole);
+			no_broadcast.setDefaultButton(SetupBroadcast);
+			no_broadcast.addButton(QTStr("Close"),
+					       QMessageBox::NoRole);
+			no_broadcast.setIcon(QMessageBox::Information);
+			no_broadcast.setWindowTitle(
+				QTStr("Output.NoBroadcast.Title"));
+			no_broadcast.exec();
+
+			if (no_broadcast.clickedButton() == SetupBroadcast)
+				QMetaObject::invokeMethod(this,
+							  "SetupBroadcast");
+			return;
+		}
+	}
+
+	if (!outputHandler->SetupStreaming(service2)) {
+		DisplayStreamStartError();
+		return;
+	}
+
+	if (api)
+		api->on_event(OBS_FRONTEND_EVENT_STREAMING_STARTING);
+
+	SaveProject();
+
+	ui->streamButtonHD->setEnabled(false);
+	ui->streamButtonHD->setChecked(false);
+	ui->streamButtonHD->setText(QTStr("Basic.Main.Connecting"));
+
+	if (sysTrayStream) {
+		sysTrayStream->setEnabled(false);
+		sysTrayStream->setText(ui->streamButtonHD->text());
+	}
+
+	if (!outputHandler->StartStreaming(service2)) {
+		DisplayStreamStartError();
+		return;
+	}
+
+	bool recordWhenStreaming = config_get_bool(
+		GetGlobalConfig(), "BasicWindow", "RecordWhenStreaming");
+	if (recordWhenStreaming)
+		StartRecording();
+
+	bool replayBufferWhileStreaming = config_get_bool(
+		GetGlobalConfig(), "BasicWindow", "ReplayBufferWhileStreaming");
+	if (replayBufferWhileStreaming)
+		StartReplayBuffer();
+
+#if YOUTUBE_ENABLED
+	if (!autoStartBroadcast)
+		OBSBasic::ShowYouTubeAutoStartWarning();
+#endif
+}
 
 void OBSBasic::BroadcastButtonClicked()
 {
@@ -6861,6 +7054,84 @@ inline void OBSBasic::OnDeactivate()
 }
 
 void OBSBasic::StopStreaming()
+{
+	SaveProject();
+
+	if (outputHandler->StreamingActive())
+		outputHandler->StopStreaming(streamingStopping);
+
+	// special case: force reset broadcast state if
+	// no autostart and no autostop selected
+	if (!autoStartBroadcast && !broadcastActive) {
+		broadcastActive = false;
+		autoStartBroadcast = true;
+		autoStopBroadcast = true;
+		broadcastReady = false;
+	}
+
+	if (autoStopBroadcast) {
+		broadcastActive = false;
+		broadcastReady = false;
+	}
+
+	OnDeactivate();
+
+	bool recordWhenStreaming = config_get_bool(
+		GetGlobalConfig(), "BasicWindow", "RecordWhenStreaming");
+	bool keepRecordingWhenStreamStops =
+		config_get_bool(GetGlobalConfig(), "BasicWindow",
+				"KeepRecordingWhenStreamStops");
+	if (recordWhenStreaming && !keepRecordingWhenStreamStops)
+		StopRecording();
+
+	bool replayBufferWhileStreaming = config_get_bool(
+		GetGlobalConfig(), "BasicWindow", "ReplayBufferWhileStreaming");
+	bool keepReplayBufferStreamStops =
+		config_get_bool(GetGlobalConfig(), "BasicWindow",
+				"KeepReplayBufferStreamStops");
+	if (replayBufferWhileStreaming && !keepReplayBufferStreamStops)
+		StopReplayBuffer();
+}
+void OBSBasic::StopStreaming4K()
+{
+	SaveProject();
+
+	if (outputHandler->StreamingActive())
+		outputHandler->StopStreaming(streamingStopping);
+
+	// special case: force reset broadcast state if
+	// no autostart and no autostop selected
+	if (!autoStartBroadcast && !broadcastActive) {
+		broadcastActive = false;
+		autoStartBroadcast = true;
+		autoStopBroadcast = true;
+		broadcastReady = false;
+	}
+
+	if (autoStopBroadcast) {
+		broadcastActive = false;
+		broadcastReady = false;
+	}
+
+	OnDeactivate();
+
+	bool recordWhenStreaming = config_get_bool(
+		GetGlobalConfig(), "BasicWindow", "RecordWhenStreaming");
+	bool keepRecordingWhenStreamStops =
+		config_get_bool(GetGlobalConfig(), "BasicWindow",
+				"KeepRecordingWhenStreamStops");
+	if (recordWhenStreaming && !keepRecordingWhenStreamStops)
+		StopRecording();
+
+	bool replayBufferWhileStreaming = config_get_bool(
+		GetGlobalConfig(), "BasicWindow", "ReplayBufferWhileStreaming");
+	bool keepReplayBufferStreamStops =
+		config_get_bool(GetGlobalConfig(), "BasicWindow",
+				"KeepReplayBufferStreamStops");
+	if (replayBufferWhileStreaming && !keepReplayBufferStreamStops)
+		StopReplayBuffer();
+}
+void OBSBasic::StopStreamingHD()
 {
 	SaveProject();
 

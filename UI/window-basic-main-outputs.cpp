@@ -1729,6 +1729,10 @@ inline void AdvancedOutput::SetupVodTrack(obs_service_t *service)
 		GetGlobalConfig(), "General", "EnableCustomServerVodTrack");
 
 	const char *id = obs_service_get_id(service);
+	if (selector == 0)
+		obs_service_get_key(service);
+	else
+		obs_service_get_key2(service);
 	if (strcmp(id, "rtmp_custom") == 0) {
 		vodTrackEnabled = enableForCustomServer ? vodTrackEnabled
 							: false;

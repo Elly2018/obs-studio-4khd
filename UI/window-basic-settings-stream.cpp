@@ -118,6 +118,7 @@ void OBSBasicSettings::LoadStream1Settings()
 	const char *service = obs_data_get_string(settings, "service");
 	const char *server = obs_data_get_string(settings, "server");
 	const char *key = obs_data_get_string(settings, "key");
+	const char *key2 = obs_data_get_string(settings, "key2");
 
 	if (strcmp(type, "rtmp_custom") == 0) {
 		ui->service->setCurrentIndex(0);
@@ -141,8 +142,10 @@ void OBSBasicSettings::LoadStream1Settings()
 				vertical-align: bottom;  \
 				' /></html>";
 
-		ui->streamKeyLabel->setText(
-			lStr.arg(ui->streamKeyLabel->text(), file));
+		//ui->streamKeyLabel->setText(
+			//lStr.arg(ui->streamKeyLabel->text(), file));
+		ui->streamKeyLabel->setText("4K Stream Key");
+		ui->streamKeyLabel2->setText("HD Stream Key");
 		ui->streamKeyLabel->setToolTip(
 			QTStr("Basic.AutoConfig.StreamPage.StreamKey.ToolTip"));
 
@@ -185,6 +188,7 @@ void OBSBasicSettings::LoadStream1Settings()
 	}
 
 	ui->key->setText(key);
+	ui->key2->setText(key2);
 
 	lastService.clear();
 	on_service_currentIndexChanged(0);
@@ -256,6 +260,7 @@ void OBSBasicSettings::SaveStream1Settings()
 	}
 
 	obs_data_set_string(settings, "key", QT_TO_UTF8(ui->key->text()));
+	obs_data_set_string(settings, "key2", QT_TO_UTF8(ui->key2->text()));
 
 	OBSServiceAutoRelease newService = obs_service_create(
 		service_id, "default_service", settings, hotkeyData);
@@ -326,11 +331,11 @@ void OBSBasicSettings::UpdateKeyLink()
 	}
 
 	if (serviceName == "Dacast") {
-		ui->streamKeyLabel->setText(
-			QTStr("Basic.AutoConfig.StreamPage.EncoderKey"));
+		ui->streamKeyLabel->setText("4K Stream Key");
+		ui->streamKeyLabel2->setText("HD Stream Key");
 	} else if (!IsCustomService()) {
-		ui->streamKeyLabel->setText(
-			QTStr("Basic.AutoConfig.StreamPage.StreamKey"));
+		ui->streamKeyLabel->setText("4K Stream Key");
+		ui->streamKeyLabel2->setText("HD Stream Key");
 	}
 
 	if (QString(streamKeyLink).isNull() ||
@@ -410,6 +415,7 @@ static void reset_service_ui_fields(Ui::OBSBasicSettings *ui,
 	if (external_oauth) {
 		ui->streamKeyWidget->setVisible(false);
 		ui->streamKeyLabel->setVisible(false);
+		ui->streamKeyLabel2->setVisible(false);
 		ui->connectAccount2->setVisible(true);
 		ui->useStreamKeyAdv->setVisible(true);
 		ui->streamStackWidget->setCurrentIndex((int)Section::StreamKey);
@@ -423,6 +429,7 @@ static void reset_service_ui_fields(Ui::OBSBasicSettings *ui,
 		ui->streamStackWidget->setCurrentIndex(page);
 		ui->streamKeyWidget->setVisible(true);
 		ui->streamKeyLabel->setVisible(true);
+		ui->streamKeyLabel2->setVisible(true);
 		ui->connectAccount2->setVisible(can_auth);
 		ui->useStreamKeyAdv->setVisible(false);
 	} else {
@@ -559,6 +566,17 @@ void OBSBasicSettings::on_show_clicked()
 	} else {
 		ui->key->setEchoMode(QLineEdit::Password);
 		ui->show->setText(QTStr("Show"));
+	}
+}
+
+void OBSBasicSettings::on_show2_clicked()
+{
+	if (ui->key2->echoMode() == QLineEdit::Password) {
+		ui->key2->setEchoMode(QLineEdit::Normal);
+		ui->show2->setText(QTStr("Hide"));
+	} else {
+		ui->key2->setEchoMode(QLineEdit::Password);
+		ui->show2->setText(QTStr("Show"));
 	}
 }
 
