@@ -1621,8 +1621,9 @@ void OBSBasic::SetPreviewProgramMode(bool enabled)
 
 		RefreshQuickTransitions();
 
-		programLabel =
-			new QLabel(QTStr("StudioMode.ProgramSceneLabel"), this);
+		programLabel = new QLabel(QTStr("StudioMode.ProgramSceneLabel"), this);
+		//programLabel =
+			//new QLabel(QTStr("StudioMode.ProgramSceneLabel"), this);
 		programLabel->setSizePolicy(QSizePolicy::Ignored,
 					    QSizePolicy::Preferred);
 		programLabel->setProperty("themeID", "previewProgramLabels");
@@ -1638,10 +1639,12 @@ void OBSBasic::SetPreviewProgramMode(bool enabled)
 
 		programWidget->setLayout(programLayout);
 
-		ui->previewLayout->addWidget(programOptions);
+		//ui->previewLayout->addWidget(programOptions);
 		ui->previewLayout->addWidget(programWidget);
-		ui->previewLayout->setAlignment(programOptions,
-						Qt::AlignCenter);
+		//ui->previewLayout->setAlignment(programOptions,
+						//Qt::AlignCenter);
+		ui->previewLabel->setText("4K View");
+		programLabel->setText("HD View");
 
 		if (api)
 			api->on_event(OBS_FRONTEND_EVENT_STUDIO_MODE_ENABLED);
@@ -1689,7 +1692,6 @@ void OBSBasic::SetPreviewProgramMode(bool enabled)
 		blog(LOG_INFO, "-----------------------------"
 			       "-------------------");
 	}
-
 	ResetUI();
 	UpdateTitleBar();
 }
@@ -1848,8 +1850,8 @@ void OBSBasic::UpdatePreviewProgramIndicators()
 			.arg(QT_UTF8(obs_source_get_name(GetProgramSource())));
 
 	if (ui->previewLabel->text() != preview)
-		ui->previewLabel->setText(preview);
+		ui->previewLabel->setText("4K View");
 
 	if (programLabel && programLabel->text() != program)
-		programLabel->setText(program);
+		programLabel->setText("HD View");
 }

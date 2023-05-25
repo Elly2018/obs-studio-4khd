@@ -9002,6 +9002,7 @@ void OBSBasic::on_resetDocks_triggered(bool force)
 	ui->transitionsDock->hide();
 	ui->menubar->hide();
 	ui->statusbar->hide();
+	ui->modeSwitch->hide();
 
 	resizeDocks(docks, {cy, cy, cy, cy, cy}, Qt::Vertical);
 	resizeDocks(docks, sizes, Qt::Horizontal);
