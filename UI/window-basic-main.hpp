@@ -269,16 +269,15 @@ private:
 
 	int selector = 0;
 	OBSService service;
+	OBSService service2;
 	std::unique_ptr<BasicOutputHandler> outputHandler;
+	std::unique_ptr<BasicOutputHandler> outputHandler2;
 	bool streamingStopping = false;
-	bool streamingStopping4K = false;
-	bool streamingStoppingHD = false;
+	bool streamingStopping2 = false;
 	bool recordingStopping = false;
-	bool recordingStopping4K = false;
-	bool recordingStoppingHD = false;
+	bool recordingStopping2 = false;
 	bool replayBufferStopping = false;
-	bool replayBufferStopping4K = false;
-	bool replayBufferStoppingHD = false;
+	bool replayBufferStopping2 = false;
 
 	gs_vertbuffer_t *box = nullptr;
 	gs_vertbuffer_t *boxLeft = nullptr;
@@ -319,8 +318,7 @@ private:
 
 	QScopedPointer<QSystemTrayIcon> trayIcon;
 	QPointer<QAction> sysTrayStream;
-	QPointer<QAction> sysTrayStream4K;
-	QPointer<QAction> sysTrayStreamHD;
+	QPointer<QAction> sysTrayStream2;
 	QPointer<QAction> sysTrayRecord;
 	QPointer<QAction> sysTrayReplayBuffer;
 	QPointer<QAction> sysTrayVirtualCam;
@@ -448,8 +446,8 @@ private:
 
 	QModelIndexList GetAllSelectedSourceItems();
 
-	obs_hotkey_pair_id streamingHotkeys, streamingHotkeys4K,
-		streamingHotkeysHD, recordingHotkeys,
+	obs_hotkey_pair_id streamingHotkeys, streamingHotkeys2, streamingHotkeysHD,
+		recordingHotkeys,
 		pauseHotkeys,
 		replayBufHotkeys, vcamHotkeys, togglePreviewHotkeys,
 		contextBarHotkeys;
@@ -663,31 +661,23 @@ public slots:
 	void SetupBroadcast();
 
 	void StartStreaming();
-	void StartStreaming4K();
-	void StartStreamingHD();
+	void StartStreaming2();
 	void StopStreaming();
-	void StopStreaming4K();
-	void StopStreamingHD();
+	void StopStreaming2();
 	void ForceStopStreaming();
-	void ForceStopStreaming4K();
-	void ForceStopStreamingHD();
+	void ForceStopStreaming2();
 
 	void StreamDelayStarting(int sec);
-	void StreamDelayStarting4K(int sec);
-	void StreamDelayStartingHD(int sec);
+	void StreamDelayStarting2(int sec);
 	void StreamDelayStopping(int sec);
-	void StreamDelayStopping4K(int sec);
-	void StreamDelayStoppingHD(int sec);
+	void StreamDelayStopping2(int sec);
 
 	void StreamingStart();
-	void StreamingStart4K();
-	void StreamingStartHD();
+	void StreamingStart2();
 	void StreamStopping();
-	void StreamStopping4K();
-	void StreamStoppingHD();
+	void StreamStopping2();
 	void StreamingStop(int errorcode, QString last_error);
-	void StreamingStop4K(int errorcode, QString last_error);
-	void StreamingStopHD(int errorcode, QString last_error);
+	void StreamingStop2(int errorcode, QString last_error);
 
 	void StartRecording();
 	void StopRecording();
@@ -1095,8 +1085,7 @@ private slots:
 	void on_actionScaleOutput_triggered();
 
 	void on_streamButton_clicked();
-	void on_streamButton_clicked4K();
-	void on_streamButton_clickedHD();
+	void on_streamButton_clicked2();
 	void on_recordButton_clicked();
 	void VCamButtonClicked();
 	void VCamConfigButtonClicked();
@@ -1218,8 +1207,7 @@ public slots:
 	void on_actionResetTransform_triggered();
 
 	bool StreamingActive();
-	bool StreamingActive4K();
-	bool StreamingActiveHD();
+	bool StreamingActive2();
 	bool RecordingActive();
 	bool ReplayBufferActive();
 	bool VirtualCamActive();

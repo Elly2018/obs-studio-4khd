@@ -2133,7 +2133,7 @@ EXPORT obs_encoder_t *obs_output_get_audio_encoder(const obs_output_t *output,
 EXPORT void obs_output_set_service(obs_output_t *output,
 				   obs_service_t *service);
 
-EXPORT void obs_output_set_keyswap(obs_service_t *service);
+//EXPORT void obs_output_set_keyswap(obs_service_t *service);
 
 /** Gets the current service associated with this output. */
 EXPORT obs_service_t *obs_output_get_service(const obs_output_t *output);
@@ -2479,8 +2479,8 @@ EXPORT const char *obs_service_get_url(const obs_service_t *service);
 /** Returns the stream key (if any) for this service context */
 EXPORT const char *obs_service_get_key(const obs_service_t *service);
 
-/** Returns the stream key (if any) for this service context */
-EXPORT const char *obs_service_get_key2(const obs_service_t *service);
+EXPORT void obs_service_set_key(obs_service_t *service,
+				const char *(*get_key)(void *data));
 
 /** Returns the username (if any) for this service context */
 EXPORT const char *obs_service_get_username(const obs_service_t *service);

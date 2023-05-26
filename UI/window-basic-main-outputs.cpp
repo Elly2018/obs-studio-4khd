@@ -9,6 +9,8 @@
 
 using namespace std;
 
+std::string BasicOutputHandler::suffix("");
+
 extern bool EncoderAvailable(const char *encoder);
 
 volatile bool streaming_active = false;
@@ -19,8 +21,6 @@ volatile bool virtualcam_active = false;
 
 #define FTL_PROTOCOL "ftl"
 #define RTMP_PROTOCOL "rtmp"
-
-int BasicOutputHandler::selector = 0;
 
 static void OBSStreamStarting(void *data, calldata_t *params)
 {
@@ -33,10 +33,7 @@ static void OBSStreamStarting(void *data, calldata_t *params)
 
 	output->delayActive = true;
 	std::string methodname("StreamDelayStarting");
-	if (BasicOutputHandler::selector == 1)
-		methodname.append("4K");
-	else if (BasicOutputHandler::selector == 2)
-		methodname.append("HD");
+	methodname.append(BasicOutputHandler::suffix.c_str());
 	QMetaObject::invokeMethod(output->main, methodname.c_str(),
 				  Q_ARG(int, sec));
 }
@@ -47,15 +44,9 @@ static void OBSStreamStopping(void *data, calldata_t *params)
 	obs_output_t *obj = (obs_output_t *)calldata_ptr(params, "output");
 
 	std::string methodname("StreamStopping");
-	if (BasicOutputHandler::selector == 1)
-		methodname.append("4K");
-	else if (BasicOutputHandler::selector == 2)
-		methodname.append("HD");
+	methodname.append(BasicOutputHandler::suffix.c_str());
 	std::string methodname2("StreamDelayStopping");
-	if (BasicOutputHandler::selector == 1)
-		methodname2.append("4K");
-	else if (BasicOutputHandler::selector == 2)
-		methodname2.append("HD");
+	methodname2.append(BasicOutputHandler::suffix.c_str());
 
 	int sec = (int)obs_output_get_active_delay(obj);
 	if (sec == 0)
@@ -71,10 +62,7 @@ static void OBSStartStreaming(void *data, calldata_t *params)
 	output->streamingActive = true;
 	os_atomic_set_bool(&streaming_active, true);
 	std::string methodname("StreamingStart");
-	if (BasicOutputHandler::selector == 1)
-		methodname.append("4K");
-	else if (BasicOutputHandler::selector == 2)
-		methodname.append("HD");
+	methodname.append(BasicOutputHandler::suffix.c_str());
 	QMetaObject::invokeMethod(output->main, methodname.c_str());
 
 	UNUSED_PARAMETER(params);
@@ -89,10 +77,7 @@ static void OBSStopStreaming(void *data, calldata_t *params)
 	QString arg_last_error = QString::fromUtf8(last_error);
 
 	std::string methodname("StreamingStop");
-	if (BasicOutputHandler::selector == 1)
-		methodname.append("4K");
-	else if (BasicOutputHandler::selector == 2)
-		methodname.append("HD");
+	methodname.append(BasicOutputHandler::suffix.c_str());
 	output->streamingActive = false;
 	output->delayActive = false;
 	os_atomic_set_bool(&streaming_active, false);
@@ -1757,10 +1742,7 @@ inline void AdvancedOutput::SetupVodTrack(obs_service_t *service)
 		GetGlobalConfig(), "General", "EnableCustomServerVodTrack");
 
 	const char *id = obs_service_get_id(service);
-	if (selector == 1)
-		obs_service_get_key(service);
-	else if (selector == 2)
-		obs_service_get_key2(service);
+	obs_service_get_key(service);
 	if (strcmp(id, "rtmp_custom") == 0) {
 		vodTrackEnabled = enableForCustomServer ? vodTrackEnabled
 							: false;
@@ -1887,9 +1869,7 @@ bool AdvancedOutput::SetupStreaming(obs_service_t *service)
 
 bool AdvancedOutput::StartStreaming(obs_service_t *service)
 {
-	obs_service_t *c_service = &*service;
-	obs_output_set_keyswap(c_service);
-	obs_output_set_service(streamOutput, c_service);
+	obs_output_set_service(streamOutput, service);
 
 	bool reconnect = config_get_bool(main->Config(), "Output", "Reconnect");
 	int retryDelay = config_get_int(main->Config(), "Output", "RetryDelay");
@@ -2169,8 +2149,8 @@ void BasicOutputHandler::SetupAutoRemux(const char *&ext)
 		ext = "mkv";
 }
 
-void BasicOutputHandler::SetSelector(int target) {
-	selector = target;
+void BasicOutputHandler::SetSuffix(const char* target) {
+	BasicOutputHandler::suffix = target;
 }
 
 std::string

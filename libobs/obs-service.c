@@ -227,14 +227,10 @@ const char *obs_service_get_key(const obs_service_t *service)
 		return NULL;
 	return service->info.get_key(service->context.data);
 }
-const char *obs_service_get_key2(const obs_service_t *service)
-{
-	if (!obs_service_valid(service, "obs_service_get_key2"))
-		return NULL;
 
-	if (!service->info.get_key2)
-		return NULL;
-	return service->info.get_key2(service->context.data);
+void obs_service_set_key(obs_service_t *service, const char *(*get_key)(void *data))
+{
+	service->info.get_key = get_key;
 }
 
 const char *obs_service_get_username(const obs_service_t *service)

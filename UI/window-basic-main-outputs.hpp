@@ -5,7 +5,7 @@
 class OBSBasic;
 
 struct BasicOutputHandler {
-	static int selector;
+	static std::string suffix;
 	OBSOutputAutoRelease fileOutput;
 	OBSOutputAutoRelease streamOutput;
 	OBSOutputAutoRelease replayBuffer;
@@ -54,7 +54,7 @@ struct BasicOutputHandler {
 	virtual bool RecordingActive() const = 0;
 	virtual bool ReplayBufferActive() const { return false; }
 	virtual bool VirtualCamActive() const;
-	virtual void SetSelector(int target);
+	virtual void SetSuffix(const char* target);
 
 	virtual void Update() = 0;
 	virtual void SetupOutputs() = 0;

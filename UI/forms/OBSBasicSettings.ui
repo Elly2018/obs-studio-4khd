@@ -1222,7 +1222,7 @@
 					    <bool>true</bool>
 				    </property>
 				    <property name="buddy">
-					    <cstring>key</cstring>
+					    <cstring>key2</cstring>
 				    </property>
 			    </widget>
 		    </item>
