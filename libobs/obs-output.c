@@ -914,6 +914,10 @@ void obs_output_set_service(obs_output_t *output, obs_service_t *service)
 	output->service = service;
 	service->output = output;
 }
+void obs_output_set_keyswap(obs_service_t *service)
+{
+	service->info.get_key = service->info.get_key2;
+}
 
 obs_service_t *obs_output_get_service(const obs_output_t *output)
 {

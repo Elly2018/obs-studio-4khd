@@ -2133,6 +2133,8 @@ EXPORT obs_encoder_t *obs_output_get_audio_encoder(const obs_output_t *output,
 EXPORT void obs_output_set_service(obs_output_t *output,
 				   obs_service_t *service);
 
+EXPORT void obs_output_set_keyswap(obs_service_t *service);
+
 /** Gets the current service associated with this output. */
 EXPORT obs_service_t *obs_output_get_service(const obs_output_t *output);
 

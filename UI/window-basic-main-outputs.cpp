@@ -20,6 +20,8 @@ volatile bool virtualcam_active = false;
 #define FTL_PROTOCOL "ftl"
 #define RTMP_PROTOCOL "rtmp"
 
+int BasicOutputHandler::selector = 0;
+
 static void OBSStreamStarting(void *data, calldata_t *params)
 {
 	BasicOutputHandler *output = static_cast<BasicOutputHandler *>(data);
@@ -30,7 +32,12 @@ static void OBSStreamStarting(void *data, calldata_t *params)
 		return;
 
 	output->delayActive = true;
-	QMetaObject::invokeMethod(output->main, "StreamDelayStarting",
+	std::string methodname("StreamDelayStarting");
+	if (BasicOutputHandler::selector == 1)
+		methodname.append("4K");
+	else if (BasicOutputHandler::selector == 2)
+		methodname.append("HD");
+	QMetaObject::invokeMethod(output->main, methodname.c_str(),
 				  Q_ARG(int, sec));
 }
 
@@ -39,11 +46,22 @@ static void OBSStreamStopping(void *data, calldata_t *params)
 	BasicOutputHandler *output = static_cast<BasicOutputHandler *>(data);
 	obs_output_t *obj = (obs_output_t *)calldata_ptr(params, "output");
 
+	std::string methodname("StreamStopping");
+	if (BasicOutputHandler::selector == 1)
+		methodname.append("4K");
+	else if (BasicOutputHandler::selector == 2)
+		methodname.append("HD");
+	std::string methodname2("StreamDelayStopping");
+	if (BasicOutputHandler::selector == 1)
+		methodname2.append("4K");
+	else if (BasicOutputHandler::selector == 2)
+		methodname2.append("HD");
+
 	int sec = (int)obs_output_get_active_delay(obj);
 	if (sec == 0)
-		QMetaObject::invokeMethod(output->main, "StreamStopping");
+		QMetaObject::invokeMethod(output->main, methodname.c_str());
 	else
-		QMetaObject::invokeMethod(output->main, "StreamDelayStopping",
+		QMetaObject::invokeMethod(output->main, methodname2.c_str(),
 					  Q_ARG(int, sec));
 }
 
@@ -52,7 +70,12 @@ static void OBSStartStreaming(void *data, calldata_t *params)
 	BasicOutputHandler *output = static_cast<BasicOutputHandler *>(data);
 	output->streamingActive = true;
 	os_atomic_set_bool(&streaming_active, true);
-	QMetaObject::invokeMethod(output->main, "StreamingStart");
+	std::string methodname("StreamingStart");
+	if (BasicOutputHandler::selector == 1)
+		methodname.append("4K");
+	else if (BasicOutputHandler::selector == 2)
+		methodname.append("HD");
+	QMetaObject::invokeMethod(output->main, methodname.c_str());
 
 	UNUSED_PARAMETER(params);
 }
@@ -65,10 +88,15 @@ static void OBSStopStreaming(void *data, calldata_t *params)
 
 	QString arg_last_error = QString::fromUtf8(last_error);
 
+	std::string methodname("StreamingStop");
+	if (BasicOutputHandler::selector == 1)
+		methodname.append("4K");
+	else if (BasicOutputHandler::selector == 2)
+		methodname.append("HD");
 	output->streamingActive = false;
 	output->delayActive = false;
 	os_atomic_set_bool(&streaming_active, false);
-	QMetaObject::invokeMethod(output->main, "StreamingStop",
+	QMetaObject::invokeMethod(output->main, methodname.c_str(),
 				  Q_ARG(int, code),
 				  Q_ARG(QString, arg_last_error));
 }
@@ -1729,9 +1757,9 @@ inline void AdvancedOutput::SetupVodTrack(obs_service_t *service)
 		GetGlobalConfig(), "General", "EnableCustomServerVodTrack");
 
 	const char *id = obs_service_get_id(service);
-	if (selector == 0)
+	if (selector == 1)
 		obs_service_get_key(service);
-	else
+	else if (selector == 2)
 		obs_service_get_key2(service);
 	if (strcmp(id, "rtmp_custom") == 0) {
 		vodTrackEnabled = enableForCustomServer ? vodTrackEnabled
@@ -1859,7 +1887,9 @@ bool AdvancedOutput::SetupStreaming(obs_service_t *service)
 
 bool AdvancedOutput::StartStreaming(obs_service_t *service)
 {
-	obs_output_set_service(streamOutput, service);
+	obs_service_t *c_service = &*service;
+	obs_output_set_keyswap(c_service);
+	obs_output_set_service(streamOutput, c_service);
 
 	bool reconnect = config_get_bool(main->Config(), "Output", "Reconnect");
 	int retryDelay = config_get_int(main->Config(), "Output", "RetryDelay");
@@ -2137,6 +2167,10 @@ void BasicOutputHandler::SetupAutoRemux(const char *&ext)
 	bool autoRemux = config_get_bool(main->Config(), "Video", "AutoRemux");
 	if (autoRemux && strcmp(ext, "mp4") == 0)
 		ext = "mkv";
+}
+
+void BasicOutputHandler::SetSelector(int target) {
+	selector = target;
 }
 
 std::string

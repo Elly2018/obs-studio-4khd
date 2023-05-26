@@ -1687,7 +1687,7 @@
   </widget>
   <widget class="OBSDock" name="control4KDock">
    <property name="features">
-    <set>QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetMovable|QDockWidget::DockWidgetFloatable</set>
+    <set></set>
    </property>
    <property name="windowTitle">
     <string>Basic.Main.Controls</string>
@@ -1713,7 +1713,7 @@
 				  <number>4</number>
 			  </property>
 			  <item>
-				  <layout class="QHBoxLayout" name="horizontalLayout_4K">
+				  <layout class="QHBoxLayout" name="horizontalLayout_7">
 					  <item>
 						  <widget class="QPushButton" name="streamButton4K">
 							  <property name="enabled">
@@ -1803,7 +1803,7 @@
   </widget>
   <widget class="OBSDock" name="controlHDDock">
    <property name="features">
-    <set>QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetMovable|QDockWidget::DockWidgetFloatable</set>
+    <set></set>
    </property>
    <property name="windowTitle">
     <string>Basic.Main.Controls</string>
@@ -1829,7 +1829,7 @@
 				  <number>4</number>
 			  </property>
 			  <item>
-				  <layout class="QHBoxLayout" name="horizontalLayout_HD">
+				  <layout class="QHBoxLayout" name="horizontalLayout_7">
 					  <item>
 						  <widget class="QPushButton" name="streamButtonHD">
 							  <property name="enabled">

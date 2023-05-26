@@ -5,17 +5,13 @@
 class OBSBasic;
 
 struct BasicOutputHandler {
+	static int selector;
 	OBSOutputAutoRelease fileOutput;
-	OBSOutputAutoRelease fileOutput2;
 	OBSOutputAutoRelease streamOutput;
-	OBSOutputAutoRelease streamOutput2;
 	OBSOutputAutoRelease replayBuffer;
 	OBSOutputAutoRelease virtualCam;
-	int selector = 0;
 	bool streamingActive = false;
-	bool streamingActive2 = false;
-	bool recordingActive = false;
-	bool recordingActive2 = false;
+	bool recordingActive = false;;
 	bool delayActive = false;
 	bool replayBufferActive = false;
 	bool virtualCamActive = false;
@@ -58,6 +54,7 @@ struct BasicOutputHandler {
 	virtual bool RecordingActive() const = 0;
 	virtual bool ReplayBufferActive() const { return false; }
 	virtual bool VirtualCamActive() const;
+	virtual void SetSelector(int target);
 
 	virtual void Update() = 0;
 	virtual void SetupOutputs() = 0;
